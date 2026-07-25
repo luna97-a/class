@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결보강 선착순 신청 게시판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1E3A5F;
+    --navy-dark:#142943;
+    --paper:#F7F6F2;
+    --card:#FFFFFF;
+    --line:#E1E0DA;
+    --ink:#23262B;
+    --ink-muted:#6B7076;
+    --amber:#B9791F;
+    --amber-bg:#FBF1DF;
+    --green:#2F7A4D;
+    --green-bg:#EAF4EC;
+    --stamp-red:#B23A2E;
+    --danger:#C4453C;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+
+  header.masthead{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding-bottom:20px;
+    border-bottom:3px double var(--navy);
+    margin-bottom:22px;
+  }
+  .seal{
+    flex:none;
+    width:52px;height:52px;
+    border-radius:50%;
+    border:2.5px solid var(--stamp-red);
+    color:var(--stamp-red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Noto Serif KR',serif;
+    font-weight:700;
+    font-size:15px;
+    transform:rotate(-10deg);
+    opacity:0.9;
+    letter-spacing:-1px;
+  }
+  .masthead h1{
+    font-family:'Noto Serif KR',serif;
+    font-weight:700;
+    font-size:23px;
+    margin:0 0 4px;
+    color:var(--navy-dark);
+  }
+  .masthead p{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-muted);
+  }
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .name-field{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:8px 12px;
+  }
+  .name-field label{
+    font-size:12.5px;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .name-field input{
+    border:none;
+    outline:none;
+    font-family:inherit;
+    font-size:14px;
+    width:110px;
+    color:var(--ink);
+    background:transparent;
+  }
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{
+    border:1px solid var(--navy);
+    background:var(--navy);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:var(--radius);
+    font-size:13.5px;
+    font-weight:500;
+    transition:background .15s ease;
+  }
+  .btn:hover{background:var(--navy-dark);}
+  .btn.ghost{ background:transparent; color:var(--navy); }
+  .btn.ghost:hover{background:#EAEFF5;}
+  .btn.small{padding:6px 11px;font-size:12.5px;border-radius:8px;}
+  .btn.danger-ghost{ border-color:var(--danger); color:var(--danger); background:transparent; }
+  .btn.danger-ghost:hover{background:#FCEDEC;}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .icon-btn{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-muted);
+    width:26px;height:26px;
+    border-radius:6px;
+    font-size:13px;
+    line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{border-color:var(--navy);color:var(--navy);}
+
+  .section-title{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin:28px 0 10px;
+  }
+  .section-title h2{
+    font-family:'Noto Serif KR',serif;
+    font-size:16.5px;
+    margin:0;
+    color:var(--navy-dark);
+  }
+  .section-title .count{ font-size:12.5px; color:var(--ink-muted); }
+  .admin-tag{
+    font-size:11px; font-weight:700;
+    background:var(--navy); color:#fff;
+    padding:3px 8px; border-radius:100px;
+  }
+
+  .table-scroll{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--card);
+  }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px; }
+  thead th{
+    text-align:left;
+    font-size:11.5px;
+    color:var(--ink-muted);
+    font-weight:700;
+    padding:10px 12px;
+    background:#F1F0EB;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  tbody td{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr.filled{ background:#FAFCFA; }
+  td.num{ color:var(--ink-muted); font-size:12.5px; width:34px; }
+  td.subject{ font-weight:500; }
+  td.note{ max-width:220px; color:var(--ink-muted); font-size:12.5px; }
+  details.note-detail summary{ cursor:pointer; color:var(--navy); font-weight:500; list-style:none; }
+  details.note-detail summary::-webkit-details-marker{ display:none; }
+  details.note-detail summary::before{ content:'상세 ▾ '; }
+  details.note-detail[open] summary::before{ content:'상세 ▴ '; }
+  details.note-detail .detail-body{ margin-top:6px; line-height:1.5; }
+  details.note-detail .detail-body div{ margin-bottom:3px; }
+
+  .apply-cell{ display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .apply-cell input[type=checkbox]{ width:17px; height:17px; accent-color:var(--navy); cursor:pointer; }
+  .apply-cell input[type=checkbox]:disabled{ cursor:default; }
+  .apply-label{ font-size:13px; }
+  .apply-label.pending{ color:var(--ink-muted); }
+  .apply-label.done{ color:var(--green); font-weight:600; }
+  .stamp-tag{
+    display:inline-block;
+    font-family:'Noto Serif KR',serif;
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--stamp-red);
+    border:1.5px solid var(--stamp-red);
+    border-radius:5px;
+    padding:1px 5px;
+    transform:rotate(-8deg);
+    margin-left:4px;
+    opacity:0.85;
+  }
+  @keyframes stampPop{
+    0%{opacity:0; transform:rotate(-8deg) scale(1.8);}
+    100%{opacity:0.85; transform:rotate(-8deg) scale(1);}
+  }
+  .stamp-tag.animate{ animation:stampPop .35s ease-out; }
+  .row-admin-actions{ display:flex; gap:4px; margin-left:6px; }
+
+  .empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--ink-muted);
+    font-size:13.5px;
+  }
+
+  .fab{ position:fixed; right:24px; bottom:24px; z-index:40; }
+
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(20,41,67,0.45);
+    display:none; align-items:center; justify-content:center;
+    padding:20px; z-index:50;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:var(--card);
+    border-radius:14px;
+    padding:22px;
+    width:100%;
+    max-width:760px;
+    max-height:88vh;
+    overflow-y:auto;
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal h3{
+    font-family:'Noto Serif KR',serif;
+    margin:0 0 4px;
+    font-size:17px;
+    color:var(--navy-dark);
+  }
+  .modal .sub{ font-size:12.5px; color:var(--ink-muted); margin:0 0 16px; }
+  .batch-table{ width:100%; border-collapse:collapse; margin-bottom:10px; }
+  .batch-table th{
+    font-size:11px; color:var(--ink-muted); text-align:left;
+    padding:6px 6px; border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  .batch-table td{ padding:5px 5px; vertical-align:top; }
+  .batch-table input{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:7px 8px;
+    font-family:inherit;
+    font-size:13px;
+    outline:none;
+  }
+  .batch-table input:focus{ border-color:var(--navy); }
+  .batch-table td.rm{ width:30px; text-align:center; }
+  .add-row-btn{ margin:4px 0 18px; }
+  .shared-fields{
+    border-top:1px dashed var(--line);
+    padding-top:14px;
+    margin-top:6px;
+  }
+  .shared-fields .frow{ margin-bottom:12px; display:flex; flex-direction:column; gap:5px; }
+  .shared-fields label{ font-size:12.5px; color:var(--ink-muted); }
+  .shared-fields input, .shared-fields textarea{
+    border:1px solid var(--line); border-radius:8px; padding:9px 10px;
+    font-family:inherit; font-size:14px; outline:none; color:var(--ink);
+  }
+  .shared-fields input:focus, .shared-fields textarea:focus{ border-color:var(--navy); }
+  .shared-fields textarea{ resize:vertical; min-height:48px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:26px;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--navy-dark); color:#fff;
+    font-size:13.5px; padding:11px 18px; border-radius:10px;
+    opacity:0; pointer-events:none; transition:all .25s ease;
+    z-index:60; max-width:90vw; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .banner{
+    background:#FBF1DF;
+    border:1px solid var(--amber);
+    color:#7A5316;
+    font-size:12.5px;
+    line-height:1.5;
+    padding:10px 14px;
+    border-radius:var(--radius);
+    margin-bottom:18px;
+    display:none;
+  }
+  .banner.show{ display:block; }
+  .log-note{ font-size:12px; color:var(--ink-muted); margin:-4px 0 10px; }
+  .badge-result{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:100px; }
+  .badge-result.confirmed{ background:var(--green-bg); color:var(--green); }
+  .badge-result.rejected{ background:#FBEAE9; color:var(--danger); }
+
+  @media (max-width:640px){
+    .modal{ padding:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="seal">교무<br>부</div>
+    <div>
+      <h1>결보강 선착순 신청 게시판</h1>
+      <p>보강이 필요한 수업을 확인하고, 원하는 항목에 체크하여 신청하세요 · 선착순 자동 마감</p>
+    </div>
+  </header>
+
+  <div class="banner" id="storageBanner">
+    ⚠ 구글 시트 서버에 연결하지 못했습니다. 지금 보이는 내용은 최신이 아닐 수 있고, 신청도 저장되지 않습니다.<br>
+    코드 상단의 <b>API_URL</b>이 앱스 스크립트 웹 앱 주소(.../exec)로 바뀌었는지, 웹 앱 배포 시 액세스 권한이 <b>"모든 사용자"</b>로 설정되었는지 확인해 주세요.
+  </div>
+
+  <div class="toolbar">
+    <div class="name-field">
+      <label for="teacherName">신청자</label>
+      <input id="teacherName" type="text" placeholder="성명 입력" maxlength="12">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="adminTag" class="admin-tag" style="display:none;">관리자 모드</span>
+      <button class="btn ghost small" id="adminBtn">관리자 로그인</button>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <h2>보강 대상 수업 명단</h2>
+    <span class="count" id="listCount">0건</span>
+    <button class="btn ghost small" id="exportListBtn" style="display:none;margin-left:auto;">CSV 다운로드</button>
+  </div>
+  <div class="table-scroll">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th>순번</th>
+          <th>보강일시</th>
+          <th>교시</th>
+          <th>학년-반</th>
+          <th>교과</th>
+          <th>비고</th>
+          <th>신청</th>
+        </tr>
+      </thead>
+      <tbody id="mainBody"></tbody>
+    </table>
+  </div>
+  <div id="mainEmpty" class="empty" style="display:none;">등록된 보강 건이 없습니다.<br>교무부장이 명단을 등록하면 이곳에 표시됩니다.</div>
+
+  <div id="adminLogSection" style="display:none;">
+    <div class="section-title">
+      <h2>보강 신청자 명단</h2>
+      <span class="admin-tag" style="font-size:10px;">관리용</span>
+      <button class="btn ghost small" id="exportLogBtn" style="margin-left:auto;">CSV 다운로드</button>
+    </div>
+    <p class="log-note">모든 신청 시도가 접수 시간순으로 기록됩니다. 동일 항목에 다른 교사가 신청을 시도한 경우 마감(탈락)으로 표시됩니다.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>접수순위</th>
+            <th>접수시간</th>
+            <th>보강희망일시/교시</th>
+            <th>신청 교사</th>
+            <th>교과</th>
+            <th>배정 여부</th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+    <div id="logEmpty" class="empty" style="display:none;">아직 신청 기록이 없습니다.</div>
+  </div>
+
+</div>
+
+<div class="fab">
+  <button class="btn" id="addBtn" style="display:none;">＋ 보강 일괄 등록</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>보강 대상 수업 일괄 등록</h3>
+    <p class="sub">여러 건을 한 번에 등록할 수 있습니다. 빈 행은 자동으로 무시됩니다.</p>
+    <table class="batch-table">
+      <thead>
+        <tr>
+          <th style="width:16%;">보강일시</th>
+          <th style="width:12%;">교시</th>
+          <th style="width:16%;">학년-반</th>
+          <th style="width:14%;">교과</th>
+          <th>사유 (선택)</th>
+          <th class="rm"></th>
+        </tr>
+      </thead>
+      <tbody id="batchBody"></tbody>
+    </table>
+    <button class="btn ghost small add-row-btn" id="addRowBtn">＋ 행 추가</button>
+
+    <div class="shared-fields">
+      <div class="frow">
+        <label>학생 자습 과제 (선택 · 이번 등록 건 전체에 공통 적용)</label>
+        <input type="text" id="fSelfStudy" placeholder="예: 유인물 배부 후 풀이">
+      </div>
+      <div class="frow">
+        <label>수업 진행 방법 (선택)</label>
+        <textarea id="fClassMethod" placeholder="예: EBS 영상 시청, 지도서 진도 나가기 등"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost small" id="cancelAdd">취소</button>
+      <button class="btn small" id="submitAdd">일괄 등록</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="modal" style="max-width:360px;">
+    <h3 id="confirmTitle">삭제하시겠습니까?</h3>
+    <p class="sub" id="confirmBody">이 작업은 되돌릴 수 없습니다.</p>
+    <div class="modal-actions">
+      <button class="btn ghost small" id="confirmCancel">취소</button>
+      <button class="btn small danger-ghost" id="confirmOk" style="background:var(--danger);color:#fff;border-color:var(--danger);">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOverlay">
+  <div class="modal" style="max-width:340px;">
+    <h3>관리자 로그인</h3>
+    <p class="sub">관리자 암호를 입력하세요.</p>
+    <div class="frow" style="margin-bottom:16px;">
+      <input type="password" id="adminPwInput" placeholder="암호" style="border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:inherit;font-size:14px;outline:none;width:100%;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost small" id="adminPwCancel">취소</button>
+      <button class="btn small" id="adminPwSubmit">로그인</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ────────────────────────────────────────────────────────────
+   ▼▼▼ 여기만 고치면 됩니다 ▼▼▼
+   앱스 스크립트를 웹 앱으로 배포하면 나오는 주소(.../exec)를 붙여넣으세요.
+   ──────────────────────────────────────────────────────────── */
+const API_URL = 'https://script.googleusercontent.com/a/macros/senedu.kr/echo?user_content_key=AUkAhnQkNYrowhWgNJ5N2gweQYAjj9-mbBYLahvtLai8BTYNeL3qa92MxCH1L5CnbAMs51DmzTgAaZqS68wnpS7GzdvxpU0343Ie8l3HPUXNeyDJJRA2pmp1mPoVo_oMK83pjZ0DWVJlGfrpwyLaa5QeI9WomKv1-pu_zX1HuHNPNF65XdIeWwGUJ_2PwED0HCrfla-X322aGv0WNMPFb2cA6bZzUIGGJhKkmfhTNhX3hGgUxJKAPIrVXSAejUjBYaZVOjFduoHiDSnGqGHlVmBm1o0fQN9N80ixRA--_TFO&lib=MIDxZsSbDk7N2urhj8KHizbyFInzilrch';
+/* ▲▲▲ 여기까지 ▲▲▲ */
+
+let requests = [];
+let attempts = [];
+let isAdmin = false;
+let adminPasscode = '';   // 관리자 로그인에 성공했을 때만 채워집니다
+let reqSnapshot = '';
+let logSnapshot = '';
+
+const $ = (id) => document.getElementById(id);
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+function escapeHTML(s){
+  if(!s) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ── 구글 시트(앱스 스크립트)와 통신하는 창구 ──────────────────
+   Content-Type을 text/plain으로 두는 것이 중요합니다.
+   application/json으로 보내면 사전 요청(preflight) 때문에 CORS 오류가 납니다.
+   ──────────────────────────────────────────────────────────── */
+async function api(action, payload){
+  const body = Object.assign({ action }, payload || {});
+  if(adminPasscode) body.passcode = adminPasscode;
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error('서버 응답 오류 (' + res.status + ')');
+
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || '알 수 없는 오류');
+  return data;
+}
+
+/* 서버가 돌려준 최신 상태를 화면 변수에 반영합니다 */
+function absorb(data){
+  if(Array.isArray(data.requests)) requests = data.requests;
+  if(Array.isArray(data.attempts)) attempts = data.attempts;
+  reqSnapshot = JSON.stringify(requests);
+  logSnapshot = JSON.stringify(attempts);
+}
+
+function showConnectionError(show, detail){
+  const banner = $('storageBanner');
+  banner.classList.toggle('show', !!show);
+  if(show && detail) console.error('[연결 오류]', detail);
+}
+
+function sortKey(r){ return (r.date||'9999') + '_' + (r.period||''); }
+function fmtDate(d){
+  if(!d) return '날짜 미정';
+  const dt = new Date(d + 'T00:00:00');
+  if(isNaN(dt)) return d;
+  const days = ['일','월','화','수','목','금','토'];
+  return `${dt.getMonth()+1}/${dt.getDate()}(${days[dt.getDay()]})`;
+}
+function fmtDateTime(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  const s = String(d.getSeconds()).padStart(2,'0');
+  return `${d.getMonth()+1}/${d.getDate()} ${h}:${m}:${s}`;
+}
+
+function render(justFilledId){
+  const sorted = [...requests].sort((a,b)=> sortKey(a) < sortKey(b) ? -1 : 1);
+  $('listCount').textContent = `${sorted.length}건`;
+  $('mainEmpty').style.display = sorted.length ? 'none' : 'block';
+
+  $('mainBody').innerHTML = sorted.map((r, i) => rowHTML(r, i+1, r.id===justFilledId)).join('');
+
+  document.querySelectorAll('[data-apply]').forEach(cb=>{
+    cb.addEventListener('change', ()=>onCheck(cb.getAttribute('data-apply'), cb));
+  });
+  document.querySelectorAll('[data-delete]').forEach(btn=>{
+    btn.addEventListener('click', ()=>deleteRequest(btn.getAttribute('data-delete')));
+  });
+  document.querySelectorAll('[data-reopen]').forEach(btn=>{
+    btn.addEventListener('click', ()=>reopenRequest(btn.getAttribute('data-reopen')));
+  });
+
+  renderLog();
+}
+
+function rowHTML(r, num, justFilled){
+  const filled = r.status === 'filled';
+  const hasNote = r.reason || r.selfStudyTask || r.classMethod;
+  const noteCell = hasNote ? `
+    <details class="note-detail">
+      <summary>내용 보기</summary>
+      <div class="detail-body">
+        ${r.reason ? `<div><strong>사유:</strong> ${escapeHTML(r.reason)}</div>` : ''}
+        ${r.selfStudyTask ? `<div><strong>자습 과제:</strong> ${escapeHTML(r.selfStudyTask)}</div>` : ''}
+        ${r.classMethod ? `<div><strong>진행 방법:</strong> ${escapeHTML(r.classMethod)}</div>` : ''}
+      </div>
+    </details>` : '<span style="color:var(--ink-muted);">-</span>';
+
+  const applyCell = filled
+    ? `<div class="apply-cell">
+         <input type="checkbox" checked disabled>
+         <span class="apply-label done">${escapeHTML(r.appliedBy)}</span>
+         <span class="stamp-tag ${justFilled?'animate':''}">접수완료</span>
+         ${isAdmin ? `<span class="row-admin-actions">
+            <button class="icon-btn" data-reopen="${r.id}" title="되돌리기">↺</button>
+            <button class="icon-btn" data-delete="${r.id}" title="삭제">✕</button>
+          </span>` : ''}
+       </div>`
+    : `<div class="apply-cell">
+         <input type="checkbox" data-apply="${r.id}">
+         <span class="apply-label pending">신청</span>
+         ${isAdmin ? `<span class="row-admin-actions">
+            <button class="icon-btn" data-delete="${r.id}" title="삭제">✕</button>
+          </span>` : ''}
+       </div>`;
+
+  return `
+  <tr class="${filled ? 'filled' : ''}">
+    <td class="num">${num}</td>
+    <td>${fmtDate(r.date)}</td>
+    <td>${escapeHTML(r.period) || '-'}</td>
+    <td>${escapeHTML(r.className) || '-'}</td>
+    <td class="subject">${escapeHTML(r.subject) || '-'}</td>
+    <td class="note">${noteCell}</td>
+    <td>${applyCell}</td>
+  </tr>`;
+}
+
+function renderLog(){
+  if(!isAdmin) return;
+  const sorted = [...attempts].sort((a,b)=> a.attemptedAt - b.attemptedAt);
+  $('logEmpty').style.display = sorted.length ? 'none' : 'block';
+  $('logBody').innerHTML = sorted.map((a, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${fmtDateTime(a.attemptedAt)}</td>
+      <td>${fmtDate(a.date)} ${escapeHTML(a.period)||''}</td>
+      <td>${escapeHTML(a.teacherName)}</td>
+      <td>${escapeHTML(a.subject)}</td>
+      <td><span class="badge-result ${a.result}">${a.result==='confirmed' ? '배정 확정' : '마감 (탈락)'}</span></td>
+    </tr>
+  `).join('');
+}
+
+async function onCheck(id, checkboxEl){
+  const name = $('teacherName').value.trim();
+  if(!name){
+    toast('신청자 성명을 먼저 입력해 주세요.');
+    checkboxEl.checked = false;
+    $('teacherName').focus();
+    return;
+  }
+  checkboxEl.disabled = true;
+
+  /* 선착순 판정은 서버에서 한 번에 처리합니다.
+     두 분이 동시에 눌러도 앱스 스크립트의 LockService가 순서를 정해 줍니다. */
+  try{
+    const data = await api('apply', { id: id, teacherName: name });
+    absorb(data);
+    showConnectionError(false);
+
+    if(data.result === 'confirmed'){
+      toast('신청이 완료되었습니다.');
+      render(id);
+    }else if(data.result === 'notfound'){
+      toast('해당 항목을 찾을 수 없습니다.');
+      render();
+    }else{
+      toast('이미 다른 선생님이 신청하여 마감되었습니다.');
+      render();
+    }
+  }catch(e){
+    showConnectionError(true, e);
+    toast('신청 처리에 실패했습니다: ' + e.message);
+    checkboxEl.checked = false;
+    checkboxEl.disabled = false;
+  }
+}
+
+function askConfirm(message){
+  return new Promise((resolve)=>{
+    $('confirmBody').textContent = message;
+    $('confirmOverlay').classList.add('show');
+    const okBtn = $('confirmOk');
+    const cancelBtn = $('confirmCancel');
+    function cleanup(result){
+      $('confirmOverlay').classList.remove('show');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk(){ cleanup(true); }
+    function onCancel(){ cleanup(false); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+async function deleteRequest(id){
+  const confirmed = await askConfirm('이 보강 건을 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다.');
+  if(!confirmed) return;
+  try{
+    const data = await api('delete', { id: id });
+    absorb(data);
+    showConnectionError(false);
+    toast('삭제되었습니다.');
+    render();
+  }catch(e){
+    showConnectionError(true, e);
+    toast('삭제에 실패했습니다: ' + e.message);
+  }
+}
+
+async function reopenRequest(id){
+  try{
+    const data = await api('reopen', { id: id });
+    absorb(data);
+    showConnectionError(false);
+    toast('신청 가능 상태로 되돌렸습니다.');
+    render();
+  }catch(e){
+    showConnectionError(true, e);
+    toast('처리에 실패했습니다: ' + e.message);
+  }
+}
+
+/* ---- admin batch add modal ---- */
+function batchRowHTML(){
+  return `
+  <tr class="batch-row">
+    <td><input type="date" class="b-date"></td>
+    <td><input type="text" class="b-period" placeholder="예: 3교시"></td>
+    <td><input type="text" class="b-class" placeholder="예: 2학년 3반"></td>
+    <td><input type="text" class="b-subject" placeholder="예: 수학"></td>
+    <td><input type="text" class="b-reason" placeholder="예: 출장으로 인한 보강"></td>
+    <td class="rm"><button class="icon-btn rm-row" title="행 삭제">✕</button></td>
+  </tr>`;
+}
+function openModal(){
+  $('batchBody').innerHTML = batchRowHTML() + batchRowHTML();
+  $('fSelfStudy').value = '';
+  $('fClassMethod').value = '';
+  bindRowRemovers();
+  $('overlay').classList.add('show');
+}
+function closeModal(){ $('overlay').classList.remove('show'); }
+function bindRowRemovers(){
+  document.querySelectorAll('.rm-row').forEach(btn=>{
+    btn.onclick = () => {
+      const rows = document.querySelectorAll('#batchBody .batch-row');
+      if(rows.length <= 1){ toast('최소 한 행은 남아 있어야 합니다.'); return; }
+      btn.closest('tr').remove();
+    };
+  });
+}
+$('addRowBtn').addEventListener('click', ()=>{
+  $('batchBody').insertAdjacentHTML('beforeend', batchRowHTML());
+  bindRowRemovers();
+});
+
+async function submitAdd(){
+  const selfStudyTask = $('fSelfStudy').value.trim();
+  const classMethod = $('fClassMethod').value.trim();
+  const rows = document.querySelectorAll('#batchBody .batch-row');
+  const items = [];
+  let rowNum = 0;
+  for(const row of rows){
+    rowNum++;
+    const date = row.querySelector('.b-date').value;
+    const period = row.querySelector('.b-period').value.trim();
+    const className = row.querySelector('.b-class').value.trim();
+    const subject = row.querySelector('.b-subject').value.trim();
+    const reason = row.querySelector('.b-reason').value.trim();
+    const allEmpty = !date && !period && !className && !subject && !reason;
+    if(allEmpty) continue;
+    if(!date || !className || !subject){
+      toast(`${rowNum}번째 행: 보강일시, 학년-반, 교과는 필수입니다.`);
+      return;
+    }
+    items.push({
+      id: uid(), date, period, className, subject, reason,
+      selfStudyTask, classMethod,
+      status:'open', appliedBy:null, appliedAt:null,
+      createdAt: Date.now()
+    });
+  }
+  if(items.length === 0){
+    toast('등록할 내용을 한 행 이상 입력해 주세요.');
+    return;
+  }
+  try{
+    const data = await api('add', { items: items });
+    absorb(data);
+    showConnectionError(false);
+    closeModal();
+    toast(`${items.length}건이 등록되었습니다.`);
+    render();
+  }catch(e){
+    showConnectionError(true, e);
+    toast('등록에 실패했습니다: ' + e.message);
+  }
+}
+
+/* ---- CSV export ---- */
+function downloadCSV(filename, headers, rows){
+  const escCell = (v) => {
+    const s = (v===null || v===undefined) ? '' : String(v);
+    if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  };
+  const lines = [headers.map(escCell).join(',')]
+    .concat(rows.map(r => r.map(escCell).join(',')));
+  const csv = '\uFEFF' + lines.join('\r\n'); // BOM so Excel/Sheets read UTF-8 Korean correctly
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function todayStamp(){
+  const d = new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function exportListCSV(){
+  const sorted = [...requests].sort((a,b)=> sortKey(a) < sortKey(b) ? -1 : 1);
+  if(sorted.length === 0){ toast('내보낼 항목이 없습니다.'); return; }
+  const headers = ['순번','보강일시','교시','학년-반','교과','사유','학생 자습 과제','수업 진행 방법','상태','신청 교사','접수 시각'];
+  const rows = sorted.map((r,i)=>[
+    i+1, r.date||'', r.period||'', r.className||'', r.subject||'',
+    r.reason||'', r.selfStudyTask||'', r.classMethod||'',
+    r.status==='filled' ? '마감' : '신청 가능',
+    r.appliedBy||'', r.appliedAt ? fmtDateTime(r.appliedAt) : ''
+  ]);
+  downloadCSV(`보강대상수업명단_${todayStamp()}.csv`, headers, rows);
+}
+
+function exportLogCSV(){
+  const sorted = [...attempts].sort((a,b)=> a.attemptedAt - b.attemptedAt);
+  if(sorted.length === 0){ toast('내보낼 신청 기록이 없습니다.'); return; }
+  const headers = ['접수순위','접수시간','보강일시','교시','신청교사','교과','학년-반','배정여부'];
+  const rows = sorted.map((a,i)=>[
+    i+1, fmtDateTime(a.attemptedAt), a.date||'', a.period||'',
+    a.teacherName||'', a.subject||'', a.className||'',
+    a.result==='confirmed' ? '배정 확정' : '마감 (탈락)'
+  ]);
+  downloadCSV(`보강신청자명단_${todayStamp()}.csv`, headers, rows);
+}
+
+$('exportListBtn').addEventListener('click', exportListCSV);
+$('exportLogBtn').addEventListener('click', exportLogCSV);
+
+function setAdmin(on){
+  isAdmin = on;
+  $('adminTag').style.display = on ? 'inline-block' : 'none';
+  $('addBtn').style.display = on ? 'inline-block' : 'none';
+  $('exportListBtn').style.display = on ? 'inline-block' : 'none';
+  $('adminLogSection').style.display = on ? 'block' : 'none';
+  $('adminBtn').textContent = on ? '관리자 로그아웃' : '관리자 로그인';
+  render();
+}
+
+function openAdminLogin(){
+  $('adminPwInput').value = '';
+  $('adminOverlay').classList.add('show');
+  setTimeout(()=>$('adminPwInput').focus(), 50);
+}
+function closeAdminLogin(){ $('adminOverlay').classList.remove('show'); }
+
+/* 암호는 화면 코드에 두지 않고 서버(앱스 스크립트)에서 확인합니다.
+   페이지 소스를 열어봐도 암호가 보이지 않습니다. */
+async function tryAdminLogin(){
+  const pw = $('adminPwInput').value;
+  const btn = $('adminPwSubmit');
+  btn.disabled = true;
+  try{
+    adminPasscode = pw;
+    const data = await api('login');
+    absorb(data);
+    showConnectionError(false);
+    closeAdminLogin();
+    setAdmin(true);
+  }catch(e){
+    adminPasscode = '';
+    toast(e.message === '암호가 올바르지 않습니다.' ? e.message : '로그인 실패: ' + e.message);
+    $('adminPwInput').value = '';
+    $('adminPwInput').focus();
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+$('adminBtn').addEventListener('click', ()=>{
+  if(isAdmin){ adminPasscode = ''; attempts = []; setAdmin(false); return; }
+  openAdminLogin();
+});
+$('adminPwCancel').addEventListener('click', closeAdminLogin);
+$('adminPwSubmit').addEventListener('click', tryAdminLogin);
+$('adminPwInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') tryAdminLogin(); });
+$('adminOverlay').addEventListener('click', (e)=>{ if(e.target.id==='adminOverlay') closeAdminLogin(); });
+$('addBtn').addEventListener('click', openModal);
+$('cancelAdd').addEventListener('click', closeModal);
+$('submitAdd').addEventListener('click', submitAdd);
+$('overlay').addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeModal(); });
+
+async function init(){
+  if(API_URL.indexOf('여기에_배포주소를') !== -1){
+    showConnectionError(true, 'API_URL이 아직 설정되지 않았습니다.');
+    render();
+    return;
+  }
+
+  try{
+    const data = await api('list');
+    absorb(data);
+    showConnectionError(false);
+  }catch(e){
+    showConnectionError(true, e);
+  }
+  render();
+
+  /* 4초마다 서버를 확인해 다른 선생님의 신청 내역을 자동으로 반영합니다.
+     다른 탭을 보고 있을 때는 건너뛰어 불필요한 호출을 줄입니다. */
+  setInterval(async ()=>{
+    if(document.hidden) return;
+    try{
+      const data = await api('list');
+      const rs = JSON.stringify(data.requests || []);
+      const ls = JSON.stringify(data.attempts || []);
+      showConnectionError(false);
+      if(rs !== reqSnapshot || ls !== logSnapshot){
+        absorb(data);
+        render();
+      }
+    }catch(e){
+      showConnectionError(true, e);
+    }
+  }, 4000);
+}
+
+init();
+</script>
+</body>
+</html>
